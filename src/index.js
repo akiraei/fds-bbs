@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 const postAPI = axios.create({
-  baseURL: "http://localhost:3000"
+  baseURL: process.env.API_URL
 })
 
 
@@ -54,7 +54,7 @@ function render(fragment) {
 
  async function indexPage() {
   
-   const res = await postAPI.get('/posts')
+   const res = await postAPI.get('./posts')
    const listFragment = document.importNode(templates.postList, true)
    
 
@@ -96,7 +96,7 @@ function render(fragment) {
 
 
 async function postContentPage(postId) {
-  const res = await postAPI.get(`/posts/${postId}`)
+  const res = await postAPI.get(`./posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
@@ -129,7 +129,7 @@ const payload = {
 
 e.preventDefault()
 
-const res = await postAPI.post('/users/login', payload)
+const res = await postAPI.post('./users/login', payload)
 
 login(res)
 // localStorage.setItem('token', res.data.token)
@@ -161,7 +161,7 @@ async function postFormPage() {
   
   e.preventDefault()
   
-  const res = await postAPI.post('/posts', payload)
+  const res = await postAPI.post('./posts', payload)
   console.log(res)
   postContentPage(res.data.id)
 })

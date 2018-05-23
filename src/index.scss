@@ -30,4 +30,12 @@ body {
       display: inline-block;
     }
   }
+
+  &__new-post-btn {
+    display: none;
+    // background-color: red;
+    .root--authed & {
+      display: inline-block;
+    }
+  }
 }

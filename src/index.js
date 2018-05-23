@@ -14,12 +14,13 @@ const templates = {
   root : document.querySelector('.root'),
   postContent: document.querySelector("#post-content").content
   ,login: document.querySelector("#login").content
+  ,postForm: document.querySelector("#post-form").content
 }
 
 
 
 if(localStorage.getItem('token')) {
-  postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
+  postAPI.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`
   templates.root.classList.add('root--authed')
 }
 
@@ -41,6 +42,7 @@ function render(fragment) {
    
 
    listFragment.querySelector('.post-list__login-btn').addEventListener("click", e => {
+     e.preventDefault();
      loginPage()
    })
 
@@ -50,6 +52,10 @@ function render(fragment) {
     localStorage.removeItem('token')
     templates.root.classList.remove('root--authed')
     indexPage()
+  })
+
+  listFragment.querySelector('.post-list__new-post-btn').addEventListener("click", e => {
+    postFormPage()
   })
 
 
@@ -86,6 +92,7 @@ async function loginPage() {
 const fragment = document.importNode(templates.login, true)
 
 fragment.querySelector('.goBack').addEventListener("click",  e => {
+  e.preventDefault();
   indexPage()
 })
 
@@ -111,6 +118,37 @@ render(fragment)
 
 
 
+
+async function postFormPage() {
+  const fragment = document.importNode(templates.postForm, true)
+
+  const formEl = fragment.querySelector('.post-form')
+
+  // const usernameSet = await postAPI.get('http://localhost:3000/users')
+
+
+  formEl.addEventListener("submit", async e => {
+  const payload = {
+    title : e.target.elements.title.value,
+    body: e.target.elements.body.value,
+    username: 'blank'
+  }
+  
+  e.preventDefault()
+  
+  const res = await postAPI.post('http://localhost:3000/posts', payload)
+  console.log(res)
+  postContentPage(res.data.id)
+})
+
+fragment.querySelector('.post-form__back').addEventListener("click",  e => {
+  e.preventDefault()
+  indexPage()
+})
+
+
+render(fragment)
+}
 
 
 

@@ -15,6 +15,7 @@
 <template id="post-list">
   <h1>post list</h1>
   <button class="post-list__login-btn">login</button>
+  <button class="post-list__new-post-btn">new post</button>
   <button class="post-list__logout-btn">logout</button>
     <div class="post-list"></div>
   </template>
@@ -51,6 +52,20 @@
 
 
 </template>
+
+
+
+
+<template id="post-form">
+  <form class="post-form">
+    <h1 class="post-form__header">new post</h1>
+    <input name='title' type="text" class="post-form__title">
+    <textarea name="body" class="post-form__body"></textarea>
+    <button class="post-form__submit">submit</button>
+    <button class="post-form__back">go back</button>
+  </form>
+</template>
+
 
 
   <script src="./index.js"></script>

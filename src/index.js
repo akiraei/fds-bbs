@@ -2,7 +2,9 @@ import './index.scss';
 import axios from 'axios';
 
 
-const postAPI = axios.create({})
+const postAPI = axios.create({
+  baseURL: "http://localhost:3000"
+})
 
 
 const templates = {
@@ -19,13 +21,26 @@ const templates = {
 
 
 
-if(localStorage.getItem('token')) {
-  postAPI.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`
+
+function login(res) {
+let token;
+  if(localStorage.getItem('token')) {
+    token = localStorage.getItem('token')
+    postAPI.defaults.headers['Authorization'] = `Bearer ${token}`
+    templates.root.classList.add('root--authed')
+  } else if (res){
+  localStorage.setItem('token', res.data.token)
+  token = localStorage.getItem('token')
+  postAPI.defaults.headers['Authorization'] = `Bearer ${token}`
   templates.root.classList.add('root--authed')
+  }
 }
 
-
-
+function logout(){
+  delete postAPI.defaults.headers['Authorization']
+  localStorage.removeItem('token')
+  templates.root.classList.remove('root--authed')
+}
 
 
 function render(fragment) {
@@ -34,10 +49,12 @@ function render(fragment) {
 }
 
 
+//------------------------------------------------------------
+
 
  async function indexPage() {
   
-   const res = await postAPI.get('http://localhost:3000/posts')
+   const res = await postAPI.get('/posts')
    const listFragment = document.importNode(templates.postList, true)
    
 
@@ -48,9 +65,10 @@ function render(fragment) {
 
 
    listFragment.querySelector('.post-list__logout-btn').addEventListener("click", e => {
-    delete postAPI.defaults.headers['Authorization']
-    localStorage.removeItem('token')
-    templates.root.classList.remove('root--authed')
+     logout()
+    // delete postAPI.defaults.headers['Authorization']
+    // localStorage.removeItem('token')
+    // templates.root.classList.remove('root--authed')
     indexPage()
   })
 
@@ -73,8 +91,12 @@ function render(fragment) {
      render(listFragment)
 }
 
+
+//--------------------------------------------------------------
+
+
 async function postContentPage(postId) {
-  const res = await postAPI.get(`http://localhost:3000/posts/${postId}`)
+  const res = await postAPI.get(`/posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
@@ -86,6 +108,8 @@ async function postContentPage(postId) {
 render(fragment)
 }
 
+
+//-----------------------------------------------------------
 
 
 async function loginPage() {
@@ -105,11 +129,12 @@ const payload = {
 
 e.preventDefault()
 
-const res = await postAPI.post('http://localhost:3000/users/login', payload)
+const res = await postAPI.post('/users/login', payload)
 
-localStorage.setItem('token', res.data.token)
-postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
-templates.root.classList.add('root--authed')
+login(res)
+// localStorage.setItem('token', res.data.token)
+// postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
+// templates.root.classList.add('root--authed')
 indexPage();
 })
 
@@ -117,14 +142,14 @@ render(fragment)
 }
 
 
-
+//----------------------------------------------------------------------
 
 async function postFormPage() {
   const fragment = document.importNode(templates.postForm, true)
 
   const formEl = fragment.querySelector('.post-form')
 
-  // const usernameSet = await postAPI.get('http://localhost:3000/users')
+  // const usernameSet = await postAPI.get('/users')
 
 
   formEl.addEventListener("submit", async e => {
@@ -136,7 +161,7 @@ async function postFormPage() {
   
   e.preventDefault()
   
-  const res = await postAPI.post('http://localhost:3000/posts', payload)
+  const res = await postAPI.post('/posts', payload)
   console.log(res)
   postContentPage(res.data.id)
 })
@@ -152,9 +177,9 @@ render(fragment)
 
 
 
+//--------------------------------------------------------------------
 
-
-
+login()
 indexPage()
 
 

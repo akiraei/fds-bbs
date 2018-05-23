@@ -1,6 +1,10 @@
 import './index.scss';
 import axios from 'axios';
 
+
+const postAPI = axios.create({})
+
+
 const templates = {
   postList : document.querySelector('#post-list').content,
 
@@ -9,6 +13,7 @@ const templates = {
   postItem : document.querySelector('#post-item').content,
   root : document.querySelector('.root'),
   postContent: document.querySelector("#post-content").content
+  ,login: document.querySelector("#login").content
 }
 
 
@@ -22,9 +27,13 @@ function render(fragment) {
 
  async function indexPage() {
   
-   const res = await axios.get('http://localhost:3000/posts')
+   const res = await postAPI.get('http://localhost:3000/posts')
    const listFragment = document.importNode(templates.postList, true)
    
+
+   listFragment.querySelector('.post-list__login-btn').addEventListener("click", e => {
+     loginPage()
+   })
   
    res.data.forEach(post => {
      const fragment = document.importNode(templates.postItem, true)
@@ -41,10 +50,15 @@ function render(fragment) {
 }
 
 async function postContentPage(postId) {
-  const res = await axios.get(`http://localhost:3000/posts/${postId}`)
+  const res = await postAPI.get(`http://localhost:3000/posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
+
+
+
+
+
 
   fragment.querySelector('.goBack').addEventListener("click", e => {
     indexPage()
@@ -52,6 +66,37 @@ async function postContentPage(postId) {
 
 render(fragment)
 }
+
+
+
+async function loginPage() {
+const fragment = document.importNode(templates.login, true)
+
+fragment.querySelector('.goBack').addEventListener("click",  e => {
+  indexPage()
+})
+
+
+const formEl = fragment.querySelector('.login__form')
+formEl.addEventListener("submit", async e => {
+const payload = {
+  username : e.target.elements.username.value,
+  password: e.target.elements.password.value
+}
+
+e.preventDefault()
+
+const res = await postAPI.post('http://localhost:3000/users/login', payload)
+
+console.log(res.data)
+localStorage.setItem('token', res.data.token)
+postAPI.defaults.headers['Authorization']
+indexPage();
+})
+
+render(fragment)
+}
+
 
 
 

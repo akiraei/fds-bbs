@@ -18,6 +18,15 @@ const templates = {
 
 
 
+if(localStorage.getItem('token')) {
+  postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
+  templates.root.classList.add('root--authed')
+}
+
+
+
+
+
 function render(fragment) {
   templates.root.textContent = ""; 
   templates.root.appendChild(fragment);
@@ -34,6 +43,16 @@ function render(fragment) {
    listFragment.querySelector('.post-list__login-btn').addEventListener("click", e => {
      loginPage()
    })
+
+
+   listFragment.querySelector('.post-list__logout-btn').addEventListener("click", e => {
+    delete postAPI.defaults.headers['Authorization']
+    localStorage.removeItem('token')
+    templates.root.classList.remove('root--authed')
+    indexPage()
+  })
+
+
   
    res.data.forEach(post => {
      const fragment = document.importNode(templates.postItem, true)
@@ -46,7 +65,6 @@ function render(fragment) {
      })
 
      render(listFragment)
-   
 }
 
 async function postContentPage(postId) {
@@ -54,11 +72,6 @@ async function postContentPage(postId) {
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
-
-
-
-
-
 
   fragment.querySelector('.goBack').addEventListener("click", e => {
     indexPage()
@@ -76,7 +89,6 @@ fragment.querySelector('.goBack').addEventListener("click",  e => {
   indexPage()
 })
 
-
 const formEl = fragment.querySelector('.login__form')
 formEl.addEventListener("submit", async e => {
 const payload = {
@@ -88,14 +100,19 @@ e.preventDefault()
 
 const res = await postAPI.post('http://localhost:3000/users/login', payload)
 
-console.log(res.data)
 localStorage.setItem('token', res.data.token)
-postAPI.defaults.headers['Authorization']
+postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
+templates.root.classList.add('root--authed')
 indexPage();
 })
 
 render(fragment)
 }
+
+
+
+
+
 
 
 

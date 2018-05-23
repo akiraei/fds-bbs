@@ -1,3 +1,7 @@
+db.json
+
+auth.config.js
+
 # Parcel
 .cache/
 dist/

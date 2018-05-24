@@ -58,7 +58,7 @@ function render(fragment) {
 
  async function indexPage() {
   
-   const res = await postAPI.get('./posts')
+   const res = await postAPI.get('./posts?_expand=user')
    const listFragment = document.importNode(templates.postList, true)
    
 
@@ -86,9 +86,9 @@ function render(fragment) {
      const fragment = document.importNode(templates.postItem, true)
 
     //  fragment.querySelector('.post-item__author').textContent = post.user.username;
-
+// console.log(post)
      const pEl = fragment.querySelector('.post-item__title');
-     pEl.textContent = post.title;
+     pEl.textContent = post.title +" / " + post.user.username;
      pEl.addEventListener("click", e => {
        postContentPage(post.id)
      })
@@ -115,11 +115,11 @@ async function postContentPage(postId) {
 
   if (localStorage.getItem('token')) {
     const commentsFragment = document.importNode(templates.comments, true)
-    const commentsRes = await postAPI.get(`/posts/${postId}/comments`)
+    const commentsRes = await postAPI.get(`/posts/${postId}/comments?_expand=user`)
     // ${postId} : postId에 해당하는 모든 내용을 가져옴. for loop와 비슷함.
     commentsRes.data.forEach(comment => {
       const itemFragment = document.importNode(templates.commentItem, true)
-      itemFragment.querySelector('.comment-item__body').textContent = comment.body + "/" + comment.userId
+      itemFragment.querySelector('.comment-item__body').textContent = comment.body + " / " + comment.user.username
       commentsFragment.querySelector('.comments__list').appendChild(itemFragment)
 
 

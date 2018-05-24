@@ -2,6 +2,8 @@ import './index.scss';
 import axios from 'axios';
 
 
+//----------------variable--------------------------------
+
 const postAPI = axios.create({
   baseURL: process.env.API_URL
 })
@@ -17,9 +19,11 @@ const templates = {
   postContent: document.querySelector("#post-content").content
   ,login: document.querySelector("#login").content
   ,postForm: document.querySelector("#post-form").content
+  ,comments: document.querySelector("#comments").content
+  ,commentItem: document.querySelector("#comment-item").content
 }
 
-
+//----------------------function-------------------------------
 
 
 function login(res) {
@@ -49,7 +53,7 @@ function render(fragment) {
 }
 
 
-//------------------------------------------------------------
+//--------------------indexpage------------------------------
 
 
  async function indexPage() {
@@ -92,10 +96,11 @@ function render(fragment) {
 }
 
 
-//--------------------------------------------------------------
+//------------------------postContentPage----------------------------
 
 
 async function postContentPage(postId) {
+
   const res = await postAPI.get(`./posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
@@ -105,11 +110,24 @@ async function postContentPage(postId) {
     indexPage()
   })
 
+  if (localStorage.getItem('token')) {
+    const commentsFragment = document.importNode(templates.comments, true)
+    const commentsRes = await postAPI.get(`/posts/${postId}/comments`)
+    // ${postId} : postId에 해당하는 모든 내용을 가져옴. for loop와 비슷함.
+    commentsRes.data.forEach(comment => {
+      const itemFragment = document.importNode(templates.commentItem, true)
+      itemFragment.querySelector('.comment-item__body').textContent = comment.body
+      commentsFragment.querySelector('.comments__list').appendChild(itemFragment)
+    })
+    fragment.appendChild(commentsFragment);
+  }
+
+
 render(fragment)
 }
 
 
-//-----------------------------------------------------------
+//-----------------------loginPage------------------------------------
 
 
 async function loginPage() {
@@ -142,7 +160,7 @@ render(fragment)
 }
 
 
-//----------------------------------------------------------------------
+//------------------------postFormPage---------------------------------
 
 async function postFormPage() {
   const fragment = document.importNode(templates.postForm, true)
@@ -177,7 +195,7 @@ render(fragment)
 
 
 
-//--------------------------------------------------------------------
+//-----------------------action------------------------------------
 
 login()
 indexPage()

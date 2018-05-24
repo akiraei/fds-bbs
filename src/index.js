@@ -84,6 +84,9 @@ function render(fragment) {
   
    res.data.forEach(post => {
      const fragment = document.importNode(templates.postItem, true)
+
+    //  fragment.querySelector('.post-item__author').textContent = post.user.username;
+
      const pEl = fragment.querySelector('.post-item__title');
      pEl.textContent = post.title;
      pEl.addEventListener("click", e => {
@@ -116,11 +119,33 @@ async function postContentPage(postId) {
     // ${postId} : postId에 해당하는 모든 내용을 가져옴. for loop와 비슷함.
     commentsRes.data.forEach(comment => {
       const itemFragment = document.importNode(templates.commentItem, true)
-      itemFragment.querySelector('.comment-item__body').textContent = comment.body
+      itemFragment.querySelector('.comment-item__body').textContent = comment.body + "/" + comment.userId
       commentsFragment.querySelector('.comments__list').appendChild(itemFragment)
+
+
     })
+    
+    console.log("res.data.id", res.data.id)
+    const formEl = commentsFragment.querySelector('.comments__form')
+    formEl.addEventListener("submit", async e => {
+    const payload = {
+      "postId" : postId,
+      body : e.target.elements.body.value
+    }
+    
+    e.preventDefault()
+    
+    const res = await postAPI.post('./comments', payload)
+    
+
+    postContentPage(postId)
+
+      })
+  
     fragment.appendChild(commentsFragment);
-  }
+}
+
+
 
 
 render(fragment)
